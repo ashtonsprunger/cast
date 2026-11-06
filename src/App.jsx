@@ -158,7 +158,7 @@ export default function App() {
     async (itemsToPush, versionToPush, force = false) => {
       if (!isHost || !hostSecret) return;
       try {
-        const res = await fetch('/api/socket-io/state', {
+        const res = await fetch('/api/socket-io', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           keepalive: true,
@@ -188,7 +188,7 @@ export default function App() {
 
   const pullHttpState = useCallback(async () => {
     try {
-      const res = await fetch(`/api/socket-io/state?r=${encodeURIComponent(roomId)}`, {
+      const res = await fetch(`/api/socket-io?r=${encodeURIComponent(roomId)}`, {
         cache: 'no-store',
       });
       if (!res.ok) return;
@@ -265,8 +265,9 @@ export default function App() {
   // Socket.IO setup + phone sleep/wake resilience
   useEffect(() => {
     const socket = io({
-      path: '/api/socket-io/socket.io',
-      transports: ['websocket'],
+      path: '/api/socket-io',
+      addTrailingSlash: false,
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 250,

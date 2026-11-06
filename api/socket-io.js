@@ -237,8 +237,13 @@ const origEmit = server.emit.bind(server);
 server.emit = function (event, ...args) {
   if ((event === 'request' || event === 'upgrade') && args[0] && typeof args[0].url === 'string') {
     const req = args[0];
-    if (req.url.startsWith('/api/socket-io')) {
-      req.url = req.url.slice('/api/socket-io'.length) || '/';
+    if (event === 'upgrade' || req.url.includes('EIO=') || req.url.includes('/socket.io')) {
+      const qIndex = req.url.indexOf('?');
+      const query = qIndex !== -1 ? req.url.slice(qIndex) : '';
+      req.url = '/socket.io/' + query;
+    } else if (req.url.startsWith('/api/socket-io')) {
+      const rest = req.url.slice('/api/socket-io'.length);
+      req.url = rest.startsWith('/') ? rest : '/' + rest;
     }
   }
   return origEmit(event, ...args);
